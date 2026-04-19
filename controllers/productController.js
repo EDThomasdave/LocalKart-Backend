@@ -11,35 +11,6 @@ export const getProducts = async (req, res) => {
   }
 };
 
-// ✅ ADD PRODUCT
-export const addProduct = async (req, res) => {
-  try {
-    console.log("BODY:", req.body); // 🔥 debug line
-
-    const { name, price, image, store } = req.body;
-
-    // 🔴 basic validation
-    if (!name || !price || !store) {
-      return res.status(400).json({ msg: "Missing required fields" });
-    }
-
-    const product = new Product({
-      name,
-      price,
-      image,
-      store
-    });
-
-    const savedProduct = await product.save();
-
-    res.status(201).json(savedProduct);
-
-  } catch (err) {
-    console.log("ADD ERROR:", err); // 🔥 show real error
-    res.status(500).json({ msg: "Error adding product" });
-  }
-};
-
 export const addProductsBulk = async (req, res) => {
   try {
     const products = await Product.insertMany(req.body);
