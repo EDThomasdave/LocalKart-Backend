@@ -1,0 +1,10 @@
+import express from "express";
+import { getProducts, addProduct, addProductsBulk  } from "../controllers/productController.js";
+
+const router = express.Router();
+
+router.get("/", getProducts);
+router.post("/", addProduct); // 🔥 THIS LINE IS IMPORTANT
+router.post("/bulk", addProductsBulk);
+
+export default router;
