@@ -58,3 +58,25 @@ export const deleteProduct = async (req, res) => {
     res.status(500).json({ msg: "Error deleting" });
   }
 };
+
+export const addProduct = async (req, res) => {
+  try {
+    const { name, price, tags } = req.body;
+
+    const image = req.file ? `/uploads/${req.file.filename}` : "";
+
+    const product = new Product({
+      name,
+      price,
+      image,
+      tags: tags.split(","), // 🔥 important
+      store: req.body.store
+    });
+
+    await product.save();
+
+    res.json(product);
+  } catch (err) {
+    res.status(500).json({ msg: "Error adding product" });
+  }
+};
