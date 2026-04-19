@@ -40,7 +40,6 @@ export const addProduct = async (req, res) => {
       name,
       price,
       image,
-      tags: tags.split(","), // 🔥 important
       store: req.body.store
     });
 
