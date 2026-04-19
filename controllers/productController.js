@@ -49,3 +49,12 @@ export const addProductsBulk = async (req, res) => {
     res.status(500).json({ msg: "Bulk insert error" });
   }
 };
+
+export const deleteProduct = async (req, res) => {
+  try {
+    await Product.findByIdAndDelete(req.params.id);
+    res.json({ msg: "Deleted" });
+  } catch (err) {
+    res.status(500).json({ msg: "Error deleting" });
+  }
+};
