@@ -11,7 +11,9 @@ dotenv.config();
 
 const app = express();
 // 🔥 MUST BE FIRST MIDDLEWARE
-app.use(cors());
+app.use(cors({
+  origin: "*"
+}));
 app.use(express.json());
 app.use("/api/cart", cartRoutes);
 // ✅ optional
