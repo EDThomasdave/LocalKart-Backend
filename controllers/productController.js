@@ -48,6 +48,7 @@ export const addProduct = async (req, res) => {
 
     res.json(product);
   } catch (err) {
-    res.status(500).json({ msg: "Error adding product" });
-  }
+  console.log("ADD PRODUCT ERROR:", err); // 🔥 ADD THIS
+  res.status(500).json({ msg: "Error adding product" });
+}
 };
