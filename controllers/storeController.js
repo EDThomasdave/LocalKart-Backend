@@ -31,3 +31,28 @@ export const registerStore = async (req, res) => {
     res.status(500).json({ msg: "Error registering store" });
   }
 };
+
+// LOGIN
+export const loginStore = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const store = await Store.findOne({ email, password });
+
+    if (!store) {
+      return res.status(400).json({ msg: "Invalid credentials" });
+    }
+
+    res.json({
+      msg: "Login success",
+      store: {
+        id: store._id,
+        name: store.name,
+        email: store.email
+      }
+    });
+
+  } catch (err) {
+    res.status(500).json({ msg: "Login error" });
+  }
+};
