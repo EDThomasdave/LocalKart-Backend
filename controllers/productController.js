@@ -1,12 +1,27 @@
 import Product from "../models/Product.js";
 
-// ✅ GET ALL PRODUCTS
 export const getProducts = async (req, res) => {
   try {
-    const products = await Product.find();
+    const { search, category } = req.query;
+
+    let filter = {};
+
+    // 🔍 SEARCH BY NAME
+    if (search) {
+      filter.name = { $regex: search, $options: "i" };
+    }
+
+    // 🏷️ FILTER BY CATEGORY (optional)
+    if (category) {
+      filter.category = category;
+    }
+
+    const products = await Product.find(filter);
+
     res.json(products);
+
   } catch (err) {
-    console.log("GET ERROR:", err);
+    console.log("SEARCH ERROR:", err);
     res.status(500).json({ msg: "Server error" });
   }
 };
@@ -51,3 +66,4 @@ export const addProduct = async (req, res) => {
   res.status(500).json({ msg: "Error adding product" });
 }
 };
+
