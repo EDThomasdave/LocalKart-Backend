@@ -1,69 +1,98 @@
 import Product from "../models/Product.js";
 
+
+// ✅ GET PRODUCTS (SEARCH + FILTER)
 export const getProducts = async (req, res) => {
   try {
-    const { search, category } = req.query;
+    const { search, category, store } = req.query;
 
     let filter = {};
 
-    // 🔍 SEARCH BY NAME
+    // 🔍 search by name
     if (search) {
       filter.name = { $regex: search, $options: "i" };
     }
 
-    // 🏷️ FILTER BY CATEGORY (optional)
+    // 🏷️ optional category
     if (category) {
       filter.category = category;
     }
 
-    const products = await Product.find(filter);
+    // 🏪 filter by store (VERY IMPORTANT for dashboard)
+    if (store) {
+      filter.store = store;
+    }
+
+    const products = await Product.find(filter).sort({ createdAt: -1 });
 
     res.json(products);
 
   } catch (err) {
-    console.log("SEARCH ERROR:", err);
+    console.log("GET PRODUCTS ERROR:", err);
     res.status(500).json({ msg: "Server error" });
   }
 };
 
-export const addProductsBulk = async (req, res) => {
-  try {
-    const products = await Product.insertMany(req.body);
-    res.status(201).json(products);
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ msg: "Bulk insert error" });
-  }
-};
 
-export const deleteProduct = async (req, res) => {
-  try {
-    await Product.findByIdAndDelete(req.params.id);
-    res.json({ msg: "Deleted" });
-  } catch (err) {
-    res.status(500).json({ msg: "Error deleting" });
-  }
-};
 
+// ✅ ADD SINGLE PRODUCT
 export const addProduct = async (req, res) => {
   try {
-    const { name, price, tags } = req.body;
+    console.log("BODY:", req.body);
+    console.log("FILE:", req.file);
+
+    const { name, price, store } = req.body;
+
+    // 🔥 validation
+    if (!name || !price || !store) {
+      return res.status(400).json({ msg: "Missing fields" });
+    }
 
     const image = req.file ? `/uploads/${req.file.filename}` : "";
 
     const product = new Product({
       name,
-      price,
+      price: Number(price), // 🔥 ensure number
       image,
-      store: req.body.store
+      store
     });
 
     await product.save();
 
-    res.json(product);
+    res.status(201).json(product);
+
   } catch (err) {
-  console.log("ADD PRODUCT ERROR:", err); // 🔥 ADD THIS
-  res.status(500).json({ msg: "Error adding product" });
-}
+    console.log("ADD PRODUCT ERROR:", err);
+    res.status(500).json({ msg: "Error adding product" });
+  }
 };
 
+
+
+// ✅ BULK INSERT (OPTIONAL)
+export const addProductsBulk = async (req, res) => {
+  try {
+    const products = await Product.insertMany(req.body);
+    res.status(201).json(products);
+  } catch (err) {
+    console.log("BULK INSERT ERROR:", err);
+    res.status(500).json({ msg: "Bulk insert error" });
+  }
+};
+
+
+
+// ✅ DELETE PRODUCT
+export const deleteProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    await Product.findByIdAndDelete(id);
+
+    res.json({ msg: "Product deleted" });
+
+  } catch (err) {
+    console.log("DELETE ERROR:", err);
+    res.status(500).json({ msg: "Error deleting product" });
+  }
+};

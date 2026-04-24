@@ -12,11 +12,14 @@ const productSchema = new mongoose.Schema({
   image: {
     type: String
   },
+
+  // 🔥 FIXED STORE FIELD
   store: {
-    name: String,
-    lat: Number,
-    lng: Number
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Store",
+    required: true
   }
+
 }, { timestamps: true });
 
 export default mongoose.model("Product", productSchema);
