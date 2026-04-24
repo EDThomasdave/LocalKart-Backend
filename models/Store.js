@@ -1,31 +1,17 @@
 import mongoose from "mongoose";
 
 const storeSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true
-  },
-  ownerName: {
-    type: String,
-    required: true
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true
-  },
-  password: {
-    type: String,
-    required: true
-  },
+  name: { type: String, required: true },
+  ownerName: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
 
-  // 🆕 ADD THIS
-  address: {
-    type: String,
-    required: true
-  },
+  phone: String,
+  address: String,
+  city: String,
+  state: String,
+  gst: String,
 
-  // already correct
   location: {
     lat: Number,
     lng: Number
