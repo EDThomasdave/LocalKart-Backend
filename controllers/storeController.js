@@ -1,6 +1,9 @@
+import Store from "../models/Store.js";
+
+// ✅ REGISTER STORE
 export const registerStore = async (req, res) => {
   try {
-    console.log("BODY:", req.body); // 🔥 debug
+    console.log("BODY:", req.body);
 
     const {
       name,
@@ -45,7 +48,33 @@ export const registerStore = async (req, res) => {
     });
 
   } catch (err) {
-    console.log("REGISTER ERROR:", err); // 🔥 THIS WILL SHOW REAL ERROR
+    console.log("REGISTER ERROR:", err);
     res.status(500).json({ msg: "Error registering store" });
+  }
+};
+
+// ✅ LOGIN STORE (THIS WAS MISSING)
+export const loginStore = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const store = await Store.findOne({ email, password });
+
+    if (!store) {
+      return res.status(400).json({ msg: "Invalid credentials" });
+    }
+
+    res.json({
+      msg: "Login success",
+      store: {
+        id: store._id,
+        name: store.name,
+        email: store.email
+      }
+    });
+
+  } catch (err) {
+    console.log("LOGIN ERROR:", err);
+    res.status(500).json({ msg: "Login error" });
   }
 };
