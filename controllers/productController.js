@@ -1,5 +1,5 @@
 import Product from "../models/Product.js";
-import cloudinary from "../utils/cloudinary.js";
+import cloudinary from "../config/cloudinary.js";
 import fs from "fs";
 
 // ✅ GET PRODUCTS (keep yours same)
