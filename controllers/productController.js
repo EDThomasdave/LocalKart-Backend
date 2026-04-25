@@ -1,6 +1,8 @@
 import Product from "../models/Product.js";
+import cloudinary from "../utils/cloudinary.js";
+import fs from "fs";
 
-// ✅ GET PRODUCTS
+// ✅ GET PRODUCTS (keep yours same)
 export const getProducts = async (req, res) => {
   try {
     const { search, category, store, tag } = req.query;
@@ -23,15 +25,13 @@ export const getProducts = async (req, res) => {
       filter.tags = tag;
     }
 
-    // ✅ IMPORTANT: populate store with ONLY required fields
     const products = await Product.find(filter)
       .populate({
         path: "store",
-        select: "name location" // 👈 ensures location comes
+        select: "name location"
       })
       .sort({ createdAt: -1 });
 
-    // ✅ SAFETY: ensure no undefined crashes on frontend
     const safeProducts = products.map(p => ({
       ...p._doc,
       store: p.store || null
@@ -45,22 +45,34 @@ export const getProducts = async (req, res) => {
   }
 };
 
-// ✅ ADD PRODUCT
+
+// ✅ FIXED ADD PRODUCT (🔥 THIS IS IMPORTANT)
 export const addProduct = async (req, res) => {
   try {
     console.log("BODY:", req.body);
     console.log("FILE:", req.file);
 
-    const name = req.body?.name;
-    const price = req.body?.price;
-    const store = req.body?.store;
+    const { name, price, store } = req.body;
     const tags = req.body?.tags ? req.body.tags.split(",") : [];
 
     if (!name || !price || !store) {
       return res.status(400).json({ msg: "Missing fields" });
     }
 
-    const image = req.file ? `/uploads/${req.file.filename}` : "";
+    let image = "";
+
+    if (req.file) {
+      console.log("Uploading to Cloudinary...");
+
+      const result = await cloudinary.uploader.upload(req.file.path);
+
+      console.log("CLOUDINARY URL:", result.secure_url);
+
+      image = result.secure_url;
+
+      // cleanup local file
+      fs.unlinkSync(req.file.path);
+    }
 
     const product = new Product({
       name,
@@ -80,7 +92,8 @@ export const addProduct = async (req, res) => {
   }
 };
 
-// ✅ DELETE PRODUCT
+
+// ✅ DELETE PRODUCT (unchanged)
 export const deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
