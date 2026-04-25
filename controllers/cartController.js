@@ -48,26 +48,20 @@ export const getCart = async (req, res) => {
     const cart = await Cart.findOne({ userId })
       .populate({
         path: "items.productId",
-        model: "Product",
-        populate: {
-          path: "store",
-          select: "name location"
-        }
+        model: "Product"
       });
 
     if (!cart) {
       return res.json({ items: [] });
     }
 
-    // ✅ convert to frontend format
-    const formattedCart = {
-      items: cart.items.map(item => ({
-        product: item.productId,
-        quantity: item.quantity
-      }))
-    };
+    // 🔥 transform data → frontend friendly
+    const formatted = cart.items.map(item => ({
+      product: item.productId,
+      quantity: item.quantity
+    }));
 
-    res.json(formattedCart);
+    res.json({ items: formatted });
 
   } catch (err) {
     console.log("GET CART ERROR:", err);
