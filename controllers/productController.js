@@ -49,9 +49,6 @@ export const getProducts = async (req, res) => {
 // ✅ FIXED ADD PRODUCT (🔥 THIS IS IMPORTANT)
 export const addProduct = async (req, res) => {
   try {
-    console.log("BODY:", req.body);
-    console.log("FILE:", req.file);
-
     const { name, price, store } = req.body;
     const tags = req.body?.tags ? req.body.tags.split(",") : [];
 
@@ -62,16 +59,9 @@ export const addProduct = async (req, res) => {
     let image = "";
 
     if (req.file) {
-      console.log("Uploading to Cloudinary...");
+      console.log("Cloudinary already handled upload");
 
-      const result = await cloudinary.uploader.upload(req.file.path);
-
-      console.log("CLOUDINARY URL:", result.secure_url);
-
-      image = result.secure_url;
-
-      // cleanup local file
-      fs.unlinkSync(req.file.path);
+      image = req.file.path; // ✅ USE THIS DIRECTLY
     }
 
     const product = new Product({
@@ -91,8 +81,6 @@ export const addProduct = async (req, res) => {
     res.status(500).json({ msg: "Error adding product" });
   }
 };
-
-
 // ✅ DELETE PRODUCT (unchanged)
 export const deleteProduct = async (req, res) => {
   try {
