@@ -19,6 +19,10 @@ export const getProducts = async (req, res) => {
       filter.store = store;
     }
 
+    if (req.query.tag) {
+  filter.tags = req.query.tag;
+}
+
     const products = await Product.find(filter).sort({ createdAt: -1 });
 
     res.json(products);
@@ -39,6 +43,7 @@ export const addProduct = async (req, res) => {
     const name = req.body?.name;
     const price = req.body?.price;
     const store = req.body?.store;
+    const tags = req.body?.tags ? req.body.tags.split(",") : [];
 
     if (!name || !price || !store) {
       return res.status(400).json({ msg: "Missing fields" });
@@ -50,7 +55,8 @@ export const addProduct = async (req, res) => {
       name,
       price: Number(price),
       image,
-      store
+      store,
+      tags
     });
 
     await product.save();
@@ -62,7 +68,6 @@ export const addProduct = async (req, res) => {
     res.status(500).json({ msg: "Error adding product" });
   }
 };
-
 
 // ✅ DELETE PRODUCT
 export const deleteProduct = async (req, res) => {

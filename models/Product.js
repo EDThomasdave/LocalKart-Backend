@@ -1,24 +1,17 @@
 import mongoose from "mongoose";
 
 const productSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true
-  },
-  price: {
-    type: Number,
-    required: true
-  },
-  image: {
-    type: String
-  },
+  name: String,
+  price: Number,
+  image: String,
 
-  // 🔥 FIXED STORE FIELD
   store: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Store",
     required: true
-  }
+  },
+
+  tags: [String] // ✅ ADD THIS
 
 }, { timestamps: true });
 
