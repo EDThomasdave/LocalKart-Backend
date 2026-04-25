@@ -19,9 +19,10 @@ export const getProducts = async (req, res) => {
       filter.store = store;
     }
 
+    // ✅ 👉 PUT YOUR TAG FILTER HERE
     if (req.query.tag) {
-  filter.tags = req.query.tag;
-}
+      filter.tags = req.query.tag;
+    }
 
     const products = await Product.find(filter).sort({ createdAt: -1 });
 
