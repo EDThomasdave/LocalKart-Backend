@@ -3,7 +3,7 @@ import Product from "../models/Product.js";
 // ✅ GET PRODUCTS
 export const getProducts = async (req, res) => {
   try {
-    const { search, category, store } = req.query;
+    const { search, category, store, tag } = req.query;
 
     let filter = {};
 
@@ -19,23 +19,31 @@ export const getProducts = async (req, res) => {
       filter.store = store;
     }
 
-    if (req.query.tag) {
-      filter.tags = req.query.tag;
+    if (tag) {
+      filter.tags = tag;
     }
 
-    // ✅ FIXED LINE
+    // ✅ IMPORTANT: populate store with ONLY required fields
     const products = await Product.find(filter)
-      .populate("store")
+      .populate({
+        path: "store",
+        select: "name location" // 👈 ensures location comes
+      })
       .sort({ createdAt: -1 });
 
-    res.json(products);
+    // ✅ SAFETY: ensure no undefined crashes on frontend
+    const safeProducts = products.map(p => ({
+      ...p._doc,
+      store: p.store || null
+    }));
+
+    res.json(safeProducts);
 
   } catch (err) {
     console.log("GET PRODUCTS ERROR:", err);
     res.status(500).json({ msg: "Server error" });
   }
 };
-
 
 // ✅ ADD PRODUCT
 export const addProduct = async (req, res) => {
