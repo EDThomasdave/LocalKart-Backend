@@ -8,6 +8,7 @@ import productRoutes from "./routes/productRoutes.js";
 import storeRoutes from "./routes/storeRoutes.js";
 import { Server } from "socket.io";
 import http from "http"; // ✅ IMPORTANT
+import orderRoutes from "./routes/orderRoutes.js";
 
 dotenv.config();
 
@@ -18,7 +19,7 @@ app.use((req, res, next) => {
   console.log("REQUEST:", req.method, req.url);
   next();
 });
-
+app.use("/api/order", orderRoutes);
 app.use(cors({ origin: "*" }));
 app.use(express.json());
 
