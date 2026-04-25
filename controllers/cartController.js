@@ -7,7 +7,6 @@ export const addToCart = async (req, res) => {
     const { userId, productId } = req.body;
 
     const product = await Product.findById(productId);
-
     if (!product) {
       return res.status(404).json({ msg: "Product not found" });
     }
@@ -18,7 +17,6 @@ export const addToCart = async (req, res) => {
       cart = new Cart({ userId, items: [] });
     }
 
-    // check if product already in cart
     const existingItem = cart.items.find(
       item => item.productId.toString() === productId
     );
@@ -26,11 +24,9 @@ export const addToCart = async (req, res) => {
     if (existingItem) {
       existingItem.quantity += 1;
     } else {
+      // ✅ ONLY store productId
       cart.items.push({
         productId,
-        name: product.name,
-        price: product.price,
-        store: product.store,
         quantity: 1
       });
     }
@@ -49,13 +45,29 @@ export const getCart = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    const cart = await Cart.findOne({ userId });
+    const cart = await Cart.findOne({ userId })
+      .populate({
+        path: "items.productId",
+        model: "Product",
+        populate: {
+          path: "store",
+          select: "name location"
+        }
+      });
 
     if (!cart) {
       return res.json({ items: [] });
     }
 
-    res.json(cart);
+    // ✅ convert to frontend format
+    const formattedCart = {
+      items: cart.items.map(item => ({
+        product: item.productId,
+        quantity: item.quantity
+      }))
+    };
+
+    res.json(formattedCart);
 
   } catch (err) {
     console.log("GET CART ERROR:", err);
