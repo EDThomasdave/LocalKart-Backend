@@ -6,54 +6,52 @@ import cartRoutes from "./routes/cartRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import storeRoutes from "./routes/storeRoutes.js";
-import { Server } from "socket.io";
-import http from "http"; // ✅ IMPORTANT
 import orderRoutes from "./routes/orderRoutes.js";
+import { Server } from "socket.io";
+import http from "http";
 
 dotenv.config();
 
 const app = express();
 
-// 🔥 MUST BE FIRST MIDDLEWARE
+// 🔥 LOGGING
 app.use((req, res, next) => {
   console.log("REQUEST:", req.method, req.url);
   next();
 });
-app.use(cors({ origin: "*" }));
-app.use("/api/order", orderRoutes);
 
+// ✅ MUST COME FIRST
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 
 // ROUTES
 app.use("/api/cart", cartRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
-app.use("/uploads", express.static("uploads"));
 app.use("/api/store", storeRoutes);
+app.use("/api/order", orderRoutes);
+app.use("/uploads", express.static("uploads"));
 
 // DB
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected ✅"))
   .catch(err => console.log(err));
 
-
-// ✅ CREATE SERVER (IMPORTANT)
+// SERVER
 const server = http.createServer(app);
 
-// ✅ SOCKET.IO SETUP
+// SOCKET.IO
 const io = new Server(server, {
   cors: { origin: "*" }
 });
 
-// 🔥 STORE SOCKETS MAP
 let storeSockets = {};
 
 io.on("connection", (socket) => {
   console.log("Socket connected:", socket.id);
 
-  // store joins
   socket.on("joinStore", (storeId) => {
-    storeSockets[storeId] = socket.id;
+    storeSockets[String(storeId)] = socket.id; // 🔥 FIX
     console.log("Store joined:", storeId);
   });
 
@@ -62,10 +60,11 @@ io.on("connection", (socket) => {
   });
 });
 
-// ✅ EXPORT FOR USE IN CONTROLLERS
-export { io, storeSockets };
+// ✅ MAKE GLOBAL
+global.io = io;
+global.storeSockets = storeSockets;
 
-// 🚀 START SERVER
+// START
 server.listen(5000, () => {
   console.log("Server running on port 5000 🚀");
 });

@@ -1,6 +1,5 @@
 import express from "express";
 import Order from "../models/Order.js";
-import { io, storeSockets } from "../server.js";
 
 const router = express.Router();
 
@@ -8,14 +7,18 @@ router.post("/", async (req, res) => {
   try {
     const { storeId } = req.body;
 
+    console.log("ORDER for store:", storeId);
+
     const order = new Order({ storeId });
     await order.save();
 
-    // 🎯 SEND ONLY TO THAT STORE
-    const socketId = storeSockets[storeId];
+    // 🔥 USE GLOBAL (SAFE)
+    const socketId = global.storeSockets?.[String(storeId)];
 
-    if (socketId) {
-      io.to(socketId).emit("new-order", {
+    console.log("Socket found:", socketId);
+
+    if (socketId && global.io) {
+      global.io.to(socketId).emit("new-order", {
         msg: "🛒 New Order Received!"
       });
     }
@@ -23,7 +26,7 @@ router.post("/", async (req, res) => {
     res.json({ msg: "Order placed" });
 
   } catch (err) {
-    console.log(err);
+    console.log("ORDER ERROR:", err);
     res.status(500).json({ msg: "Order failed" });
   }
 });
