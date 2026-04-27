@@ -95,3 +95,18 @@ export const deleteProduct = async (req, res) => {
     res.status(500).json({ msg: "Error deleting product" });
   }
 };
+
+export const getProductsByStore = async (req, res) => {
+  try {
+    const products = await Product.find({
+      store: req.params.storeId
+    })
+      .sort({ createdAt: -1 });
+
+    res.json(products);
+
+  } catch (err) {
+    console.log("FETCH STORE PRODUCTS ERROR:", err);
+    res.status(500).json({ msg: "Failed to fetch store products" });
+  }
+};
