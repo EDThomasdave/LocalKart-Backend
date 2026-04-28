@@ -87,4 +87,13 @@ router.put("/fulfill/:orderId", async (req, res) => {
 });
 
 
+router.get("/:orderId", async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.orderId);
+    res.json(order);
+  } catch (err) {
+    res.status(500).json({ msg: "Error fetching order" });
+  }
+});
+
 export default router;
