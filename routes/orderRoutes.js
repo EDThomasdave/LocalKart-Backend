@@ -96,4 +96,21 @@ router.get("/:orderId", async (req, res) => {
   }
 });
 
+router.put("/fulfill/:orderId", async (req, res) => {
+  try {
+    const order = await Order.findByIdAndUpdate(
+      req.params.orderId,
+      { status: "fulfilled" },
+      { new: true }
+    );
+
+    // 🔥 ADD THIS
+    global.io.emit("order-updated", order);
+
+    res.json(order);
+  } catch (err) {
+    res.status(500).json({ msg: "Failed to update order" });
+  }
+});
+
 export default router;
